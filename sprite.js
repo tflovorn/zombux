@@ -1,4 +1,4 @@
-var gFrictionCoeff = 0.1;
+var gFrictionCoeff = 0.03;
 
 function Sprite(image, position, velocity) {
     this.image = image;
@@ -8,8 +8,8 @@ function Sprite(image, position, velocity) {
     this.speedY = velocity[1];
     // Advance to position for next frame.
     this.update = function () {
-        this.speedX -= this.speedX * gFrictionCoeff;
-        this.speedY -= this.speedY * gFrictionCoeff;
+        this.accelerate(-this.speedX * gFrictionCoeff,
+                        -this.speedY * gFrictionCoeff);
         this.posX += this.speedX;
         this.posY += this.speedY;
     };
@@ -18,6 +18,7 @@ function Sprite(image, position, velocity) {
         this.speedX += accelX;
         this.speedY += accelY;
     };
+    // Draw the sprite on the given drawingContext.
     this.draw = function (drawingContext) {
         drawingContext.drawImage(this.image, this.posX, this.posY);
     };

@@ -21,9 +21,10 @@ function initGame() {
     gSpriteDict = new Array();
     gSpriteDict["bob"] = new Sprite(imageDict["bob"], [60, 60], [0, 0]);
     // register event handlers
-    window.addEventListener("keyDown", handleKeyDown, false);
-    window.addEventListener("keyUp", handleKeyUp, false);
-    gCanvas.addEventListener("click", handleClick, false);
+    window.addEventListener("keyDown", handleKeyDown, true);
+    window.addEventListener("keyPress", handleKeyDown, true);
+    window.addEventListener("keyUp", handleKeyUp, true);
+    gCanvas.addEventListener("click", handleClick, true);
     // initiate game loop
     window.setInterval(updateGame, 20);
 }
@@ -56,6 +57,7 @@ function drawGame() {
     }
 }
 
+// Key is down, do something.  Or not.
 function handleKeyDown(keyEvent) {
     var keyString = getKeyValue(keyEvent);
     switch (keyString) {
@@ -74,10 +76,13 @@ function handleKeyDown(keyEvent) {
     }
 }
 
+// Friction means we don't need to decelerate on keyUp.
+// Known bug in Ubuntu Opera 10.5/11: keyup repeatedly fires.
 function handleKeyUp(keyEvent) {
-    
+//    alert("keyup");
 }
 
+// Extract the string corresponding to the key pressed.
 function getKeyValue(keyEvent) {
     var keyCode;
     // IE support
@@ -91,6 +96,7 @@ function getKeyValue(keyEvent) {
     return String.fromCharCode(keyCode);
 }
 
+// Click for shooting.
 function handleClick(clickEvent) {
     var position = getCursorPosition(clickEvent);
 //    alert(position[0] + ' ' + position[1]);
