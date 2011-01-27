@@ -1,5 +1,8 @@
 // globals
-var gCanvas, gDrawingContext, gSpriteDict;
+var gCanvas, gDrawingContext;   // game canvas and its 2d context
+var gSpriteDict;                // every sprite to be updated/drawn
+var gGunFiring;                 // shooting bullets now?
+var gCursorPosition;            // [X, Y] position of mouse cursor
 
 // Run initGame() after the page finishes loading.
 window.addEventListener("load", initGame, false);
@@ -21,10 +24,10 @@ function initGame() {
     gSpriteDict = new Array();
     gSpriteDict["bob"] = new Sprite(imageDict["bob"], [60, 60], [0, 0]);
     // register event handlers
-    window.addEventListener("keyDown", handleKeyDown, true);
-    window.addEventListener("keyPress", handleKeyDown, true);
-    window.addEventListener("keyUp", handleKeyUp, true);
-    gCanvas.addEventListener("click", handleClick, true);
+    window.addEventListener("keydown", handleKeyDown, false);
+    window.addEventListener("keypress", handleKeyDown, false);
+    gCanvas.addEventListener("click", handleClick, false);
+    gCanvas.addEventListener("mousemove", handleMouseMove, false);
     // initiate game loop
     window.setInterval(updateGame, 20);
 }
@@ -55,31 +58,25 @@ function drawGame() {
     for (var name in gSpriteDict) {
         gSpriteDict[name].draw(gDrawingContext);
     }
+    gDrawingContext.beginPath();
+    gDrawingContext.arc(gCursorPosition[0], gCursorPosition[1], 10, 0,
+                        Math.PI * 2, false);
+    gDrawingContext.closePath();
+    gDrawingContext.strokeStyle = "#fff";
+    gDrawingContext.stroke();
 }
 
 // Key is down, do something.  Or not.
 function handleKeyDown(keyEvent) {
     var keyString = getKeyValue(keyEvent);
     switch (keyString) {
-        case "W": // move up
-            gSpriteDict["bob"].accelerate(0, -1);
+        case "Q": // start firing
+            gGunFiring = true;
             break;
-        case "S": // move down
-            gSpriteDict["bob"].accelerate(0, 1);
-            break;
-        case "A": // move left
-            gSpriteDict["bob"].accelerate(-1, 0);
-            break;
-        case "D": // move right
-            gSpriteDict["bob"].accelerate(1, 0);
+        case "E": // stop firing
+            gGunFiring = false;
             break;
     }
-}
-
-// Friction means we don't need to decelerate on keyUp.
-// Known bug in Ubuntu Opera 10.5/11: keyup repeatedly fires.
-function handleKeyUp(keyEvent) {
-//    alert("keyup");
 }
 
 // Extract the string corresponding to the key pressed.
@@ -96,24 +93,29 @@ function getKeyValue(keyEvent) {
     return String.fromCharCode(keyCode);
 }
 
-// Click for shooting.
-function handleClick(clickEvent) {
-    var position = getCursorPosition(clickEvent);
-//    alert(position[0] + ' ' + position[1]);
+// Click to direct movement.
+function handleClick(mouseEvent) {
+    var position = getCursorPosition(mouseEvent);
+    
+}
+
+// Point shooter towards the cursor; put a reticle around it.
+function handleMouseMove(mouseEvent) {
+    gCursorPosition = getCursorPosition(mouseEvent);
 }
 
 // Code pulled straight from Dive Into HTML5 (Halma)
 // Unsure which browsers don't support pageX/pageY.
-function getCursorPosition(clickEvent) {
+function getCursorPosition(mouseEvent) {
     var x, y;
-    if (clickEvent.pageX != undefined && clickEvent.pageY != undefined) {
-        x = clickEvent.pageX;
-        y = clickEvent.pageY;
+    if (mouseEvent.pageX != undefined && mouseEvent.pageY != undefined) {
+        x = mouseEvent.pageX;
+        y = mouseEvent.pageY;
     }
     else {
-        x = clickEvent.clientX + document.body.scrollLeft 
+        x = mouseEvent.clientX + document.body.scrollLeft 
                 + document.documentElement.scrollLeft;
-        y = clickEvent.clientY + document.body.scrollTop 
+        y = mouseEvent.clientY + document.body.scrollTop 
                 + document.documentElement.scrollTop;
     }
     x -= gCanvas.offsetLeft;
