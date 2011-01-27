@@ -1,8 +1,14 @@
+// global constants
+var kBulletWait = 5;            // roll over gBulletWaitCount when it gets here
+
 // globals
 var gCanvas, gDrawingContext;   // game canvas and its 2d context
+var gCursorPosition;            // [X, Y] position of mouse cursor
+var gImageDict;                 // images we need to render sprites
 var gSpriteDict;                // every sprite to be updated/drawn
 var gGunFiring;                 // shooting bullets now?
-var gCursorPosition;            // [X, Y] position of mouse cursor
+var gBulletWaitCount;           // spawn a bullet when it's 0
+var gBulletNumber;              // how many bullets have been shot?
 
 // Run initGame() after the page finishes loading.
 window.addEventListener("load", initGame, false);
@@ -18,11 +24,14 @@ function initGame() {
     gCanvas = document.getElementById("gameCanvas");
     gDrawingContext = gCanvas.getContext("2d");
     // get image objects ready
-    var imageNames = ["bob"];
-    var imageDict = loadImages(imageNames);
+    var imageNames = ["bob", "bullet"];
+    gImageDict = loadImages(imageNames);
     // make sprites
     gSpriteDict = new Array();
-    gSpriteDict["bob"] = new Sprite(imageDict["bob"], [60, 60], [0, 0]);
+    gSpriteDict["bob"] = new Sprite(gImageDict["bob"], [60, 60], 1);
+    // prepare logic
+    gBulletWaitCount = 0;
+    gBulletNumber = 0;
     // register event handlers
     window.addEventListener("keydown", handleKeyDown, false);
     window.addEventListener("keypress", handleKeyDown, false);
@@ -46,24 +55,42 @@ function loadImages(imageNames) {
 
 // Main game loop body.
 function updateGame() {
+    // Spawn a bullet every kBulletWait frames, if we're firing.
+    if (gGunFiring && (gBulletWaitCount == 0)) {
+        var position = [gSpriteDict["bob"].position[0],
+                        gSpriteDict["bob"].position[1]];
+        var bullet = new Sprite(gImageDict["bullet"], position, 3);
+        bullet.moveTarget = [gCursorPosition[0], gCursorPosition[1]];
+        var name = "bullet" + gBulletNumber;
+        gSpriteDict[name] = bullet;
+        gBulletNumber += 1;
+    }
+    gBulletWaitCount = (gBulletWaitCount + 1) % kBulletWait;
+    // Update all sprites.
     for (var name in gSpriteDict) {
         gSpriteDict[name].update();
     }
+    // Do all drawing.
     drawGame();
 }
 
 // Draw everything.
 function drawGame() {
+    // background
     gDrawingContext.fillRect(0, 0, gCanvas.width, gCanvas.height);
+    // sprites
     for (var name in gSpriteDict) {
         gSpriteDict[name].draw(gDrawingContext);
     }
-    gDrawingContext.beginPath();
-    gDrawingContext.arc(gCursorPosition[0], gCursorPosition[1], 10, 0,
-                        Math.PI * 2, false);
-    gDrawingContext.closePath();
-    gDrawingContext.strokeStyle = "#fff";
-    gDrawingContext.stroke();
+    // reticle around cursor
+    if (gCursorPosition != undefined) {
+        gDrawingContext.beginPath();
+        gDrawingContext.arc(gCursorPosition[0], gCursorPosition[1], 10, 0,
+                            Math.PI * 2, false);
+        gDrawingContext.closePath();
+        gDrawingContext.strokeStyle = "#fff";
+        gDrawingContext.stroke();
+    }
 }
 
 // Key is down, do something.  Or not.
@@ -96,7 +123,7 @@ function getKeyValue(keyEvent) {
 // Click to direct movement.
 function handleClick(mouseEvent) {
     var position = getCursorPosition(mouseEvent);
-    
+    gSpriteDict["bob"].moveTarget = position;
 }
 
 // Point shooter towards the cursor; put a reticle around it.
