@@ -73,14 +73,14 @@ function handleClick(clickEvent) {
 // Unsure which browsers don't support pageX/pageY.
 function getCursorPosition(clickEvent) {
     var x, y;
-    if (e.pageX != undefined && e.pageY != undefined) {
-        x = e.pageX;
-        y = e.pageY;
+    if (clickEvent.pageX != undefined && clickEvent.pageY != undefined) {
+        x = clickEvent.pageX;
+        y = clickEvent.pageY;
     }
     else {
-        x = e.clientX + document.body.scrollLeft 
+        x = clickEvent.clientX + document.body.scrollLeft 
                 + document.documentElement.scrollLeft;
-        y = e.clientY + document.body.scrollTop 
+        y = clickEvent.clientY + document.body.scrollTop 
                 + document.documentElement.scrollTop;
     }
     x -= gCanvas.offsetLeft;
