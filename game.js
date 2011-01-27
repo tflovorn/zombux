@@ -1,3 +1,5 @@
+var width, height;
+
 // Run initGame() after the page finishes loading.
 window.addEventListener("load", initGame, false);
 
@@ -9,7 +11,10 @@ function initGame() {
         return;
     }
     // get drawing context from main canvas
-    var gContext = document.getElementById("gameCanvas").getContext("2d");
+    var canvas = document.getElementById("gameCanvas");
+    var gContext = canvas.getContext("2d");
+    width = canvas.width;
+    height = canvas.height;
     // get image objects ready
     var imageNames = ["bob"];
     var imageDict = loadImages(imageNames);
@@ -19,10 +24,7 @@ function initGame() {
     // register event handlers
 
     // initiate game loop
-    var updateHandler = new function () {
-        this.handleEvent = updateGame;
-    };
-    setInterval(updateHandler, 20, spriteDict, gContext);
+    window.setInterval(updateGame, 20, spriteDict, gContext);
 }
 
 // Take an array of image names; load them from images/ (assuming .png type).
@@ -47,8 +49,7 @@ function updateGame(spriteDict, gContext) {
 
 // Draw everything.
 function drawGame(spriteDict, gContext) {
-    // should fix the 640x480 magic numbers
-    gContext.fillRect(0, 0, 640, 480);
+    gContext.fillRect(0, 0, width, height);
     for (var name in spriteDict) {
         spriteDict[name].draw(gContext);
     }
