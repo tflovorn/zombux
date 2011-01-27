@@ -19,10 +19,10 @@ function initGame() {
     var imageDict = loadImages(imageNames);
     // make sprites
     gSpriteDict = new Array();
-    gSpriteDict["bob"] = new Sprite(imageDict["bob"], [60, 60], [1, 2]);
+    gSpriteDict["bob"] = new Sprite(imageDict["bob"], [60, 60], [0, 0]);
     // register event handlers
-    gCanvas.addEventListener("keydown", handleKeyDown, false);
-    gCanvas.addEventListener("keyup", handleKeyUp, false);
+    window.addEventListener("keyDown", handleKeyDown, false);
+    window.addEventListener("keyUp", handleKeyUp, false);
     gCanvas.addEventListener("click", handleClick, false);
     // initiate game loop
     window.setInterval(updateGame, 20);
@@ -57,16 +57,43 @@ function drawGame() {
 }
 
 function handleKeyDown(keyEvent) {
-
+    var keyString = getKeyValue(keyEvent);
+    switch (keyString) {
+        case "W": // move up
+            gSpriteDict["bob"].accelerate(0, -1);
+            break;
+        case "S": // move down
+            gSpriteDict["bob"].accelerate(0, 1);
+            break;
+        case "A": // move left
+            gSpriteDict["bob"].accelerate(-1, 0);
+            break;
+        case "D": // move right
+            gSpriteDict["bob"].accelerate(1, 0);
+            break;
+    }
 }
 
 function handleKeyUp(keyEvent) {
+    
+}
 
+function getKeyValue(keyEvent) {
+    var keyCode;
+    // IE support
+    if (event.which == undefined) {
+        keyCode = keyEvent.keyCode;
+    }
+    // everyone else
+    else {
+        keyCode = keyEvent.which;
+    }
+    return String.fromCharCode(keyCode);
 }
 
 function handleClick(clickEvent) {
     var position = getCursorPosition(clickEvent);
-    alert(position[0] + ' ' + position[1]);
+//    alert(position[0] + ' ' + position[1]);
 }
 
 // Code pulled straight from Dive Into HTML5 (Halma)
