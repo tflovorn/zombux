@@ -27,7 +27,7 @@ function initGame() {
     var imageNames = ["bob", "bullet"];
     gImageDict = loadImages(imageNames);
     // make sprites
-    gSpriteDict = new Array();
+    gSpriteDict = {};
     gSpriteDict["bob"] = new Sprite(gImageDict["bob"], [60, 60], 1);
     // prepare logic
     gBulletWaitCount = 0;
@@ -44,7 +44,7 @@ function initGame() {
 // Take an array of image names; load them from images/ (assuming .png type).
 // Return an associative array of Image objects with keys given by image names.
 function loadImages(imageNames) {
-    var imageDict = new Array();
+    var imageDict = {};
     for (var i = 0; i < imageNames.length; i++) {
         var someImage = new Image();
         someImage.src = "images/" + imageNames[i] + ".png";
